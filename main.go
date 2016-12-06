@@ -70,7 +70,7 @@ func doEchoLine(r io.Reader) error {
 				matchedUnixTime, err := strconv.ParseFloat(string(matched[0]), 64)
 				if err != nil {
 					fmt.Println(line)
-					return nil
+					continue
 				}
 				unixTime := int64(matchedUnixTime)
 				if *format == "" {
@@ -83,7 +83,7 @@ func doEchoLine(r io.Reader) error {
 				}
 				if unixTimeBegin <= unixTime && unixTime <= unixTimeNow {
 					fmt.Println(unixTimeRe.ReplaceAllString(string(line), formattedTime))
-					return nil
+					continue
 				}
 			}
 			buf.Reset()
