@@ -10,6 +10,7 @@ import (
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/hhkbp2/go-strftime"
@@ -25,8 +26,9 @@ var (
 )
 
 var (
-	format = flag.String("f", "", "Specify the time format")
+	format = flag.String("f", "", "Specify the time format for convert")
 	quote  = flag.Bool("q", false, "Quote the date to be output")
+	prefix = flag.String("p", "", "Add the prefix for searching to prevent mismatch when looking for UNIX time")
 )
 
 func init() {
@@ -65,10 +67,14 @@ func doEchoLine(r io.Reader) error {
 		}
 		if !isPrefix {
 			var matched [][]byte
+			if *prefix != "" {
+				unixTimeRe = regexp.MustCompile(*prefix + `([0-9]{9,}(\.[0-9]+)?)`)
+			}
 			matched = unixTimeRe.FindSubmatch(line)
 			if len(matched) > 0 {
-				matchedUnixTime, err := strconv.ParseFloat(string(matched[0]), 64)
+				matchedUnixTime, err := strconv.ParseFloat(strings.TrimPrefix(string(matched[0]), *prefix), 64)
 				if err != nil {
+					panic(err)
 					fmt.Println(line)
 					continue
 				}
@@ -80,6 +86,9 @@ func doEchoLine(r io.Reader) error {
 				}
 				if *quote {
 					formattedTime = fmt.Sprintf(`"%s"`, formattedTime)
+				}
+				if *prefix != "" {
+					formattedTime = *prefix + formattedTime
 				}
 				if unixTimeBegin <= unixTime && unixTime <= unixTimeNow {
 					fmt.Println(unixTimeRe.ReplaceAllString(string(line), formattedTime))

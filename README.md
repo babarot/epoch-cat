@@ -18,6 +18,18 @@ zplug "b4b4r07/epoch-cat", as:command, rename-to:ecat
 ## Usage
 
 ```console
+$ ./epoch-cat -h
+Usage of ./epoch-cat:
+  -f string
+        Specify the time format for convert
+  -p string
+        Add the prefix for searching to prevent mismatch when looking for UNIX time
+  -q    Quote the date to be output
+```
+
+### Examples
+
+```console
 $ ./epoch-cat -q access.log | jq . | head
 {
   "time": "2016-05-25T14:35:35Z",
